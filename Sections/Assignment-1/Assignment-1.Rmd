@@ -1,0 +1,102 @@
+---
+title: "Assignment-1"
+author: "Ahmed Ashraf Mohamed ID:2103134"
+output: pdf_document
+---
+
+
+# Importing the libraries and the data
+
+```{r libraries, include=FALSE}
+library(statsr)
+library(dplyr)
+library(ggplot2)
+```
+Importing the data and printing it.
+```{r}
+data("ames")
+print(ames)
+```
+# Exercise 1
+
+```{r}
+price_sample <- ames %>% sample_n(size = 50)
+price_sample %>%
+summarise(mu = mean(price),
+          pop_med = median(price),
+          sigma = sd(price), pop_iqr = IQR(price),
+          pop_min = min(price),pop_max = max(price),
+          pop_q1 = quantile(area, 0.25),
+          pop_q3 = quantile(area, 0.75))
+
+```
+
+# Exercise 2
+
+```{r}
+sample_means50 <- ames %>%
+rep_sample_n(size = 50, reps = 5000, replace = TRUE) %>%
+summarise(x_bar = mean(price))
+
+ggplot(data = sample_means50, aes(x = x_bar)) + geom_histogram(binwidth = 30)
+
+```
+Based on this plot, it seem that the distribution is a normal distribution.
+Eyeing this the means seems around 180,000 mark, to make sure we are going to print the mean of our sample.
+```{r}
+print(paste("Mean : ",mean(sample_means50$x_bar)))
+```
+# Exercise 3
+
+```{r}
+sample_means150 <- ames %>%
+rep_sample_n(size = 150, reps = 5000, replace = TRUE) %>%
+summarise(x_bar = mean(price))
+
+ggplot(data = sample_means150, aes(x = x_bar)) + geom_histogram(binwidth = 30)
+
+```
+Looking at this plot and comparing it to the previous plot, it seems clear that the mean is just a bit higher than 180,000, also noting that both plots are normal distributions.
+```{r}
+print(paste("Mean:",mean(sample_means150$x_bar)))
+```
+# Exercise 4
+
+```{r}
+price_sample15 <- ames %>% sample_n(size = 15)
+print(as_tibble(price_sample15$price))
+print(mean(price_sample15$price))
+
+```
+
+# Exercise 5
+
+```{r}
+sample_means15 <-ames %>%
+  rep_sample_n(size = 15,reps = 2000,replace = TRUE) %>%
+  summarise(x_bar = mean(price))
+
+ggplot(data = sample_means15, aes(x = x_bar)) + geom_histogram(binwidth = 30)
+print(mean(sample_means15$x_bar))
+```
+
+## Population Summary 
+
+```{r summary}
+ames %>%
+summarise(mu = mean(price),
+          pop_med = median(price),
+          sigma = sd(price), pop_iqr = IQR(price),
+          pop_min = min(price),pop_max = max(price),
+          pop_q1 = quantile(area, 0.25),
+          pop_q3 = quantile(area, 0.75))
+```
+# Exercise 6
+```{r}
+sample_means150 <-ames %>%
+  rep_sample_n(size = 150,reps = 2000,replace = TRUE) %>%
+  summarise(x_bar = mean(price))
+
+ggplot(data = sample_means150, aes(x = x_bar)) + geom_histogram(binwidth = 30)
+print(mean(sample_means150$x_bar))
+```
