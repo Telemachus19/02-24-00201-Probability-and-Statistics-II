@@ -1,0 +1,67 @@
+---
+title: "Titanic Data Analysis"
+author: "Ahmed Ashraf Mohamed"
+output:
+  pdf_document: 
+    toc: yes
+    number_sections: yes
+    includes:
+      in_header: preamble.tex
+    highlight: pygments
+  html_document:
+    toc: yes
+    df_print: paged
+---
+
+# Preliminary Look at the data
+
+The
+
+| Variable | Definition                                    | Key                                            |
+|:-------------------|:-------------------------|:-------------------------|
+| survival | Survival                                      | 0 = No, 1 = yes                                |
+| pclass   | ticket class                                  | 1 = 1st, 2 = 2nd, 3 = 3rd                      |
+| sex      | sex                                           |                                                |
+| age      | Age in year                                   |                                                |
+| sibsp    | Number of siblings/spouses aboard the titanic |                                                |
+| parch    | Number of parents/children aboard the Titanic |                                                |
+| ticket   | ticket number(unique)                         |                                                |
+| fare     | Passenger fare                                |                                                |
+| cabin    | Cabin number                                  |                                                |
+| embarked | port of embarkation                           | C = Cherbourg, Q = Queenstown, S = Southampton |
+
+```{r}
+library(tidyverse)
+library(ggthemes)
+train <- read_csv(file = "data/train.csv")
+
+train <- train %>%
+  mutate(Sex = as_factor(Sex),Embarked = as_factor(Embarked))
+
+head(train)
+tail(train)
+```
+
+# Summary of the Data
+
+```{r}
+summary(train)
+```
+
+## Grouped by Sex
+
+```{r}
+head(train)
+train %>%
+  group_by(Sex) %>%
+  summarise(Age_mean = mean(Age,na.rm=TRUE),
+            age_sd = sd(Age,na.rm=T),
+            surival_mean = mean(Survived,na.rm =T),
+            surival_sd = sd(Survived,na.rm = T))
+
+
+
+```
+# Description of the data
+## Categorical Features
+## Numerical Features
