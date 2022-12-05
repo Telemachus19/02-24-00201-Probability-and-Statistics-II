@@ -1,8 +1,8 @@
 ---
 title: "Titanic Data Analysis"
 author: "Ahmed Ashraf Mohamed"
-output:
-  pdf_document: 
+output: 
+  hrbrthemes::ipsum_pdf:
     toc: yes
     number_sections: yes
     includes:
@@ -11,11 +11,15 @@ output:
   html_document:
     toc: yes
     df_print: paged
+    
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,  dev = "cairo_pdf")
+```
 
 # Preliminary Look at the data
 
-The
+We need first to define the data we have.   
 
 | Variable | Definition                                    | Key                                            |
 |:-------------------|:-------------------------|:-------------------------|
@@ -30,25 +34,85 @@ The
 | cabin    | Cabin number                                  |                                                |
 | embarked | port of embarkation                           | C = Cherbourg, Q = Queenstown, S = Southampton |
 
-```{r}
+```{r echo=TRUE, results='hide',message=FALSE}
+# Loading Packages
 library(tidyverse)
+library(viridis)
+library(ggplot2)
+library(ggcorrplot)
 library(ggthemes)
-train <- read_csv(file = "data/train.csv")
+library(hrbrthemes)
+library(e1071)
+library(mice)
+library(statsr)
 
-train <- train %>%
-  mutate(Sex = as_factor(Sex),Embarked = as_factor(Embarked))
 
-head(train)
-tail(train)
+# Loading Data
+train <- read_csv("data/train.csv")
+test <- read_csv("data/test.csv")
 ```
 
-# Summary of the Data
+# Exploration Of The Data
+
+## Summary of Data
 
 ```{r}
 summary(train)
 ```
 
-## Grouped by Sex
+## Plotting The Data
+
+### Correlation Matrix (numerical analysis)
+We are going to use correlation matrix of the numerical data to assess the correlation, which might gives a better idea of which feature might be important
+```{r}
+train %>%
+  filter(!is.na(Age)) %>%
+  select(Survived, Pclass,Age,SibSp,Parch,Fare) %>%
+  cor() %>%
+  ggcorrplot(lab = T,
+             ggtheme =theme_ipsum_rc(grid = F),
+             title="Correlation Matrix",hc.order=T,
+             colors =rev(viridis(3,alpha=0.7)),
+             digits = 2)
+```
+
+The fare features seems to be the most correlated feature to survival of the passengers, but it doesn't negate the importance of the other features in the data. Which means that we will start by comparing the each that we consider to be important against survival feature
+
+### Class of Passenger
+```{r}
+train %>%
+  select(Pclass,Survived) %>%
+  ggplot(aes(as_factor(Pclass),fill=as_factor(Survived))) + 
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels=scales::percent) +
+  theme_ipsum_rc() + 
+  labs(x = "Classes",y = "Survival Rate")+
+  scale_fill_discrete(name = "Survived", labels = c("Didn't Survive","Survived")) 
+```
+
+### Siblings and Spouses
+```{r}
+train %>%
+  select(SibSp,Survived) %>%
+  ggplot(aes(as_factor(SibSp),fill=as_factor(Survived))) +
+  geom_bar(position = "fill") + 
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = "Siblings and Spouses",y = "Survival Rate")+
+  scale_fill_discrete(name = "Survived", labels = c("Didn't Survive","Survived"))+
+  theme_ipsum()
+```
+
+### Number of children/parents
+```{r}
+train %>%
+  select(Parch,Survived) %>%
+  ggplot(aes(as_factor(Parch),fill=as_factor(Survived))) + 
+  geom_bar(position = "fill") +
+  scale_y_continuous(label = scales::percent)+
+  labs(x = "Number of parents/children",y = "Survival Rate")+
+  scale_fill_discrete(name = "Survived", labels = c("Didn't Survive","Survived")) +
+  theme_ipsum_rc()
+```
 
 ```{r}
 head(train)
@@ -58,8 +122,6 @@ train %>%
             age_sd = sd(Age,na.rm=T),
             surival_mean = mean(Survived,na.rm =T),
             surival_sd = sd(Survived,na.rm = T))
-
-
 
 ```
 # Description of the data
